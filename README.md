@@ -1,83 +1,56 @@
+# DeepSea Local
 
-# DeepSea
-
-A minimalist AI chat interface **powered by DeepSeek**, with GPT-4 integration for advanced reasoning.
+DeepSea Local is a chat interface for structuring and refining ideas. It keeps the existing Next.js UI and now targets the NVIDIA OpenAI-compatible API for streaming chat completions.
 
 ## Features
 
-- **AI Model Strategy**:
-  - **Primary**: DeepSeek for all standard interactions (Lite, Standard, Auto modes)
-  - **Exception**: GPT-4 (OpenAI) exclusively for Hardcore mode when deep analysis is required
-  - **Auto Mode**: Intelligently selects between Lite and Standard, **never escalates to GPT-4**
+- Streaming chat completions through NVIDIA's OpenAI-compatible endpoint
+- Direct local access without login
+- Lite, Standard, Hardcore, and Auto response modes
+- Markdown rendering with copy, edit, and regenerate actions
 
-- **Multiple Response Modes**:
-  - **Lite**: Quick, concise answers (max 5 sentences) - DeepSeek
-  - **Standard**: Structured explanations with core summary, details, and limitations - DeepSeek
-  - **Hardcore**: Deep analysis with internal verification - GPT-4
-  - **Auto**: Automatically selects between Lite and Standard - DeepSeek only
+## Requirements
 
-- **Secure Authentication**: JWT-based login system
-- **Conversation Management**: Save/load chats as Markdown files
-- **Message Actions**: Edit user messages, regenerate AI responses, export individual messages
-- **Streaming Responses**: Real-time response generation
-- **Clean UI**: Minimalist, DeepSeek-inspired interface with logo-centric design
+- Node.js 20+
+- npm
+- NVIDIA API key
 
-## Tech Stack
+## Local Setup
 
-- **Framework**: Next.js 15 (App Router)
-- **AI Providers**: 
-  - DeepSeek API (primary - lite/standard/auto modes)
-  - OpenAI GPT-4 (hardcore mode only)
-- **Authentication**: JWT with httpOnly cookies
-- **Styling**: Tailwind CSS
-- **Deployment**: Vercel (Edge Runtime)
-- **Language**: TypeScript
-
-## Setup & Run
-
-1. **Install Dependencies**
+1. Install dependencies:
    ```bash
    npm install
    ```
 
-2. **Environment Setup**
-   Copy `.env.example` to `.env.local` and fill in your details:
+2. Prepare environment variables:
    ```bash
-   cp .env.example .env.local
-   ```
-   
-   Required environment variables:
-   ```env
-   APP_USERNAME=admin
-   APP_PASSWORD=password123
-   JWT_SECRET_KEY=your-secret-key-min-32-chars
-   
-   # DeepSeek API Key (Required)
-   DEEPSEEK_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-   
-   # OpenAI API Key (Required for Hardcore mode)
-   OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+   copy .env.example .env.local
    ```
 
-3. **Run Development Server**
+3. Set `NVIDIA_API_KEY` in `.env.local` and, if needed, adjust `NVIDIA_MODEL`.
+
+4. Start the Next.js app:
    ```bash
    npm run dev
    ```
-   Open [http://localhost:3000](http://localhost:3000).
 
-4. **Build for Production**
-   ```bash
-   npm run build
-   npm start
-   ```
+5. Open `http://localhost:3000` and start chatting immediately.
 
-## Vercel Deployment
+## Environment Variables
 
-1. Push to GitHub
-2. Import project in Vercel
-3. Add Environment Variables in Vercel Project Settings
-4. Deploy
+```env
+NVIDIA_API_KEY=your-nvidia-api-key
+NVIDIA_BASE_URL=https://integrate.api.nvidia.com/v1
+NVIDIA_MODEL=deepseek-ai/deepseek-v3.2
+```
 
-## License
+Use any NVIDIA-hosted model name that the endpoint supports for `NVIDIA_MODEL`.
 
-MIT
+## Scripts
+
+```bash
+npm run dev
+npm run build
+npm start
+npm run lint
+```

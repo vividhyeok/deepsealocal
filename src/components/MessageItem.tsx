@@ -1,10 +1,12 @@
+'use client';
+
 import { useState } from 'react';
 import Image from 'next/image';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Check, Copy, Download, Pencil, RefreshCw } from 'lucide-react';
-import { Message } from '@/lib/deepseek';
 import { cn } from '@/lib/utils';
+import type { Message } from '@/lib/ai-providers';
 
 interface MessageItemProps {
   message: Message;
@@ -33,7 +35,7 @@ export default function MessageItem({ message, isStreaming, onRegenerate, onEdit
           {isUser ? (
             <div className="flex h-full items-center justify-center text-[10px] font-semibold text-gray-600">ME</div>
           ) : (
-            <Image src="/logo.png" alt="로고" width={28} height={28} unoptimized />
+            <Image src="/logo.png" alt="DeepSea 로고" width={28} height={28} unoptimized />
           )}
         </div>
 
@@ -53,7 +55,7 @@ export default function MessageItem({ message, isStreaming, onRegenerate, onEdit
               />
               <div className="flex justify-end gap-2">
                 <button onClick={() => setIsEditing(false)} className="rounded-md border border-gray-200 px-2 py-1 text-xs text-gray-600">
-                  Cancel
+                  취소
                 </button>
                 <button
                   onClick={() => {
@@ -62,7 +64,7 @@ export default function MessageItem({ message, isStreaming, onRegenerate, onEdit
                   }}
                   className="rounded-md bg-gray-900 px-2 py-1 text-xs text-white"
                 >
-                  Save
+                  저장
                 </button>
               </div>
             </div>
@@ -73,24 +75,29 @@ export default function MessageItem({ message, isStreaming, onRegenerate, onEdit
                 {isStreaming && <span className="ml-1 inline-block h-4 w-2 animate-pulse bg-gray-700 align-middle" />}
               </div>
 
-              <div className={cn('mt-2 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100', isUser ? 'justify-end' : 'justify-start')}>
+              <div
+                className={cn(
+                  'mt-2 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100',
+                  isUser ? 'justify-end' : 'justify-start'
+                )}
+              >
                 {!isUser && (
-                  <button onClick={handleCopy} className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700" title="Copy">
+                  <button onClick={handleCopy} className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700" title="복사">
                     {copied ? <Check className="h-3.5 w-3.5 text-green-600" /> : <Copy className="h-3.5 w-3.5" />}
                   </button>
                 )}
                 {!isUser && !isStreaming && onRegenerate && (
-                  <button onClick={onRegenerate} className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700" title="Regenerate">
+                  <button onClick={onRegenerate} className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700" title="다시 생성">
                     <RefreshCw className="h-3.5 w-3.5" />
                   </button>
                 )}
                 {!isUser && !isStreaming && onExport && (
-                  <button onClick={onExport} className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700" title="Export">
+                  <button onClick={onExport} className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700" title="내보내기">
                     <Download className="h-3.5 w-3.5" />
                   </button>
                 )}
                 {isUser && (
-                  <button onClick={() => setIsEditing(true)} className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700" title="Edit">
+                  <button onClick={() => setIsEditing(true)} className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700" title="수정">
                     <Pencil className="h-3.5 w-3.5" />
                   </button>
                 )}

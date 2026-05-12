@@ -1,22 +1,22 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import type { Metadata } from 'next';
+import { Geist, Geist_Mono } from 'next/font/google';
+import './globals.css';
 
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
 });
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
-  title: "AI 도우미",
-  description: "간결한 AI 대화 인터페이스",
+  title: 'DeepSea Local',
+  description: '질문 품질을 보정하는 로컬 AI 래퍼',
   icons: {
-    icon: "/logo.png",
+    icon: '/logo.png',
   },
 };
 
@@ -26,12 +26,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
-      </body>
+    <html lang="ko" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className="antialiased">{children}</body>
     </html>
   );
 }

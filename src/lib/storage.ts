@@ -1,6 +1,6 @@
 
-import { Message } from './deepseek';
-import { Mode } from './modes';
+import type { Message } from './ai-providers';
+import type { Mode } from './modes';
 
 export interface ConversationData {
     messages: Message[];

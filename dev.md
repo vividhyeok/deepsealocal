@@ -1,69 +1,26 @@
+# DeepSea Local 개발 메모
 
-# 📝 개발 현황 보고서 (Phase 1)
+## 현재 구성
 
-**수신:** 시니어 개발자님
-**발신:** 주니어 개발자 (DeepSea 담당)
-**작성일:** 2026-02-13
-**주제:** DeepSea 개인용 AI 플랫폼 Phase 1 구현 완료 및 배포 준비 보고
+- Next.js App Router 기반 로컬 웹 앱
+- 로그인 없이 바로 열리는 로컬 래퍼
+- AI 응답은 NVIDIA OpenAI 호환 API로 중계
+- 기본 모델은 `NVIDIA_MODEL=deepseek-ai/deepseek-v3.2`
 
----
+## 실행 흐름
 
-### 1. 개요
-지시해주신 **DeepSea 프로젝트의 Phase 1 (핵심 기능)** 구현을 완료했습니다.
-요청하신 대로 **Next.js 15 (App Router)** 기반으로 구축하였으며, 데이터베이스 없이 **JWT와 로컬 파일 시스템**만을 사용하여 가볍고 빠르게 동작하도록 설계했습니다.
+1. 브라우저에서 `/chat` 접속
+2. `/chat`에서 메시지를 `/api/chat`으로 전송
+3. 서버 라우트가 NVIDIA OpenAI 호환 스트림을 기존 SSE 형태로 변환
+4. 클라이언트가 기존 스트리밍 UI에 토큰을 누적 표시
 
-현재 Vercel 배포를 위한 설정까지 마친 상태이며, 주요 구현 사항을 아래와 같이 보고드립니다.
+## 로컬 실행 체크리스트
 
----
+```bash
+npm install
+copy .env.example .env.local
+NVIDIA_API_KEY를 `.env.local`에 설정
+npm run dev
+```
 
-### 2. 기술 스택 및 선정 이유
-
-- **Next.js 15**: 최신 기능을 활용하기 위해 채택했습니다.
-- **TailwindCSS v4**: 별도의 UI 라이브러리(shadcn 등) 없이 `lucide-react` 아이콘과 조합하여 디자인 요구사항(Dark/Glassmorphism)을 직접 구현했습니다. 무거운 의존성을 줄이고 커스텀 디자인을 쉽게 하기 위함입니다.
-- **jose**: Edge Runtime 호환성이 좋은 경량 JWT 라이브러리라 선택했습니다.
-- **Fetch API + ReadableStream**: Vercel AI SDK를 쓰지 않고 `fetch`로 직접 구현했습니다. Phase 1에서는 의존성을 최소화하고 스트리밍 원리를 직접 제어하는 것이 좋겠다고 판단했습니다.
-
----
-
-### 3. 주요 구현 내용
-
-#### 🔐 인증 (Authentication)
-- **구현 방식**: `APP_USERNAME` / `APP_PASSWORD` 환경변수와 대조하여 인증합니다.
-- **토큰 관리**: 로그인 성공 시 `HS256` 알고리즘으로 서명된 JWT를 발급하고, `HttpOnly`, `Secure`, `SameSite=Strict` 속성으로 쿠키에 저장하여 보안을 강화했습니다.
-- **미들웨어**: `middleware.ts`에서 `/chat` 및 `/api/*` 경로 접근 시 토큰을 검증하고, 유효하지 않으면 로그인 페이지로 리다이렉트 처리했습니다.
-
-#### 💬 채팅 엔진 및 스트리밍
-- **DeepSeek 연동**: 서버 사이드에서만 API 키를 호출하도록 프록시 라우트(`/api/chat`)를 구성했습니다.
-- **스트리밍**: `ReadableStream`을 사용하여 토큰이 생성되는 즉시 클라이언트로 전송되도록 처리했습니다.
-
-#### 🧠 모드 시스템 (Mode System)
-요청하신 4가지 모드를 다음과 같이 구현했습니다.
-1.  **Lite**: 단순 패스스루 모드입니다.
-2.  **Standard**: 시스템 프롬프트를 통해 페르소나를 주입했습니다.
-3.  **Hardcore (심화 모드)**: 
-    - 내부적으로 2번의 API 호출이 일어납니다.
-    - **Step 1**: 사용자의 질문을 분석하여 '계획(Plan)'을 수립합니다. (UI에는 "Thinking..." 표시)
-    - **Step 2**: 수립된 계획을 Context로 하여 최종 답변을 생성합니다.
-4.  **Auto**: 사용자 입력에 `plan`, `analysis` 같은 키워드가 있으면 자동으로 Hardcore 모드로 전환되도록 로직을 짰습니다.
-
-#### 💾 데이터 저장 (No DB)
-- 서버 DB 없이 클라이언트 측에서 **Markdown 파일**로 대화를 내보내고(Save) 불러오는(Load) 기능을 구현했습니다.
-- Frontmatter(YAML)를 사용하여 메타데이터(모드, 날짜)를 파일 내에 함께 저장합니다.
-
----
-
-### 4. 개발 중 이슈 및 해결 (Troubleshooting)
-
-**이슈**: Vercel 빌드 시 `@headlessui/react` 모듈을 찾을 수 없다는 에러가 발생했습니다.
-**원인**: UI 구현 도중 `Listbox` 컴포넌트를 import 해두고 실제로는 사용하지 않았는데, 패키지 설치는 하지 않아서 발생한 문제였습니다.
-**해결**: 해당 라이브러리 의존성을 제거하고, HTML 기본 `<select>` 태그와 TailwindCSS 커스텀 스타일링으로 교체하여 빌드 오류를 해결했습니다.
-
----
-
-### 5. 향후 계획 (Phase 2 건의사항)
-
-Phase 1은 성공적으로 구현되었습니다. 다음 단계에서는 아래 내용들을 검토해 주시면 좋을 것 같습니다.
-- **IndexedDB 도입**: 현재는 파일로만 저장이 가능한데, 브라우저 내 자동 저장을 위해 도입하면 좋을 것 같습니다.
-- **Vercel AI SDK 도입**: 기능이 복잡해지면 직접 `fetch`를 관리하는 것보다 SDK의 `useChat` 훅을 사용하는 것이 유지보수에 유리할 것 같습니다.
-
-코드는 현재 GitHub `main` 브랜치에 푸시되어 있습니다. 검토 부탁드립니다!
+`http://localhost:3000`으로 접속합니다.
